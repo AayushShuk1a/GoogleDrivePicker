@@ -1,23 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import { Button } from "@mui/material";
+import Card from "./Components/Card";
+import "./app.scss";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Card>
+        <div className="UpperPart">
+          <Button variant="contained">Connect to Google Drive</Button>
+          <Button variant="contained">Select File From Google Drive</Button>
+        </div>
+      </Card>
     </div>
   );
 }
