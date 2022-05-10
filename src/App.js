@@ -1,10 +1,10 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import Card from "./Components/Card";
 import "./app.scss";
 import useDrivePicker from "react-google-drive-picker";
 
 function App() {
-  const [openPicker, data, authResponse] = useDrivePicker();
+  const [openPicker] = useDrivePicker();
 
   const handleOpenPicker = () => {
     openPicker({
