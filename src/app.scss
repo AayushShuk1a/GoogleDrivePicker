@@ -1,7 +1,21 @@
-.App {
+.Model {
   position: fixed;
-  width: fit-content;
+  width: 40%;
   transform: translate(calc(50vw - 50%), calc(50vh - 50%));
+
+  .UpperPart {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 5px;
+  }
+
+  .LowerPart {
+    margin-top: 15px;
+    .ItemsBox {
+      padding: 5px;
+      border: 1px solid;
+    }
+  }
 }
 
 .overlay {
