@@ -7,12 +7,12 @@ import { useEffect, useState } from "react";
 import useDrivePicker from "react-google-drive-picker";
 
 function App() {
-  const [isLoadingGoogleDriveApi, setIsLoadingGoogleDriveApi] = useState(false);
-  const [listDocumentsVisible, setListDocumentsVisibility] = useState(false);
   const [UserSignIn, setUserSignIn] = useState(false);
-  const [documents, setdocuments] = useState([]);
 
-  const [openPicker, data, authResponse] = useDrivePicker();
+  const [SelectedData, setSelectedData] = useState([]);
+  console.log(SelectedData[0]);
+
+  const [openPicker, data] = useDrivePicker();
 
   const CLIENT_ID =
     "923693732798-o1okob9pc8sir7aupfi921hv2jj8usl4.apps.googleusercontent.com";
@@ -30,10 +30,11 @@ function App() {
 
   const handleOpenPicker = () => {
     openPicker({
-      clientId: CLIENT_ID,
       developerKey: API_KEY,
       viewId: "DOCS",
-      // token: token, // pass oauth token in case you already have one
+      token: gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse()
+        .access_token,
+
       showUploadView: true,
       showUploadFolders: true,
       supportDrives: true,
@@ -45,6 +46,7 @@ function App() {
   useEffect(() => {
     // do anything with the selected/uploaded files
     if (data) {
+      setSelectedData(data.docs);
       data.docs.map((i) => console.log(i.name));
     }
   }, [data]);
@@ -55,7 +57,6 @@ function App() {
   };
 
   const initClient = () => {
-    setIsLoadingGoogleDriveApi(true);
     gapi.client
       .init({
         apiKey: API_KEY,
@@ -83,10 +84,8 @@ function App() {
         q: searchTerm,
       })
       .then(function (response) {
-        setListDocumentsVisibility(true);
         const res = JSON.parse(response.body);
         console.log(res);
-        setdocuments(res.files);
       });
   };
 
@@ -109,6 +108,7 @@ function App() {
     console.log(isSignedIn);
     if (isSignedIn) {
       setUserSignIn(true);
+      console.log(gapi.auth2.getAuthInstance().currentUser);
       GetDriveFiles();
     } else {
       gapi.auth2.getAuthInstance().signIn();
@@ -121,19 +121,20 @@ function App() {
         <Card>
           <div className="UpperPart">
             {Button1}
-            <Button variant="contained" onClick={handleOpenPicker}>
+            <Button
+              variant="contained"
+              onClick={handleOpenPicker}
+              disabled={UserSignIn ? false : true}
+            >
               Select File From Google Drive
             </Button>
           </div>
           <div className="LowerPart">
             <Typography>Selected File...</Typography>
             <Box className="ItemsBox">
-              <Typography>Hello</Typography>
-              <Typography>Hello</Typography>
-              <Typography>Hello</Typography>
-              <Typography>Hello</Typography>
-              <Typography>Hello</Typography>
-              <Typography>Hello</Typography>
+              {SelectedData.map((item) => {
+                return <Typography>{item.name}</Typography>;
+              })}
             </Box>
           </div>
         </Card>
