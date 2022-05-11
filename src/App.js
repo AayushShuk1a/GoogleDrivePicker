@@ -2,17 +2,13 @@ import { Box, Button, Typography } from "@mui/material";
 import Card from "./Components/Card";
 import "./app.scss";
 import { gapi } from "gapi-script";
-import { useEffect, useState } from "react";
-
-import useDrivePicker from "react-google-drive-picker";
+import { useState } from "react";
+import GooglePicker from "react-google-picker";
 
 function App() {
   const [UserSignIn, setUserSignIn] = useState(false);
 
   const [SelectedData, setSelectedData] = useState([]);
-  console.log(SelectedData[0]);
-
-  const [openPicker, data] = useDrivePicker();
 
   const CLIENT_ID =
     "923693732798-o1okob9pc8sir7aupfi921hv2jj8usl4.apps.googleusercontent.com";
@@ -26,30 +22,30 @@ function App() {
   // Authorization scopes required by the API; multiple scopes can be
   // included, separated by spaces.
   const SCOPES = "https://www.googleapis.com/auth/drive";
+
   // const customViewsArray = [new google.picker.DocsView()];
 
-  const handleOpenPicker = () => {
-    openPicker({
-      developerKey: API_KEY,
-      viewId: "DOCS",
-      token: gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse()
-        .access_token,
+  // const handleOpenPicker = () => {
+  //   // openPicker({
+  //   //   developerKey: API_KEY,
+  //   //   viewId: "DOCS",
+  //   //   token: gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse()
+  //   //     .access_token,
+  //   //   showUploadView: true,
+  //   //   showUploadFolders: true,
+  //   //   supportDrives: true,
+  //   //   multiselect: true,
+  //   //   // customViews: customViewsArray, // custom view
+  //   // });
+  // };
 
-      showUploadView: true,
-      showUploadFolders: true,
-      supportDrives: true,
-      multiselect: true,
-      // customViews: customViewsArray, // custom view
-    });
-  };
-
-  useEffect(() => {
-    // do anything with the selected/uploaded files
-    if (data) {
-      setSelectedData(data.docs);
-      data.docs.map((i) => console.log(i.name));
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   // do anything with the selected/uploaded files
+  //   if (data) {
+  //     setSelectedData(data.docs);
+  //     data.docs.map((i) => console.log(i.name));
+  //   }
+  // }, [data]);
 
   const handleClientLoad = () => {
     console.log("clicked");
@@ -76,18 +72,18 @@ function App() {
       );
   };
 
-  const GetDriveFiles = (searchTerm = null) => {
-    gapi.client.drive.files
-      .list({
-        pageSize: 10,
-        fields: "nextPageToken, files(id, name, mimeType, modifiedTime)",
-        q: searchTerm,
-      })
-      .then(function (response) {
-        const res = JSON.parse(response.body);
-        console.log(res);
-      });
-  };
+  // const GetDriveFiles = (searchTerm = null) => {
+  //   gapi.client.drive.files
+  //     .list({
+  //       pageSize: 10,
+  //       fields: "nextPageToken, files(id, name, mimeType, modifiedTime)",
+  //       q: searchTerm,
+  //     })
+  //     .then(function (response) {
+  //       const res = JSON.parse(response.body);
+  //       console.log(res);
+  //     });
+  // };
 
   const handleSignOut = () => {
     gapi.auth2.getAuthInstance().signOut();
@@ -105,11 +101,10 @@ function App() {
   );
 
   const updateSigninStatus = (isSignedIn) => {
-    console.log(isSignedIn);
     if (isSignedIn) {
       setUserSignIn(true);
-      console.log(gapi.auth2.getAuthInstance().currentUser);
-      GetDriveFiles();
+      // console.log(gapi.auth2.getAuthInstance().currentUser);
+      // GetDriveFiles();
     } else {
       gapi.auth2.getAuthInstance().signIn();
     }
@@ -121,19 +116,50 @@ function App() {
         <Card>
           <div className="UpperPart">
             {Button1}
-            <Button
-              variant="contained"
-              onClick={handleOpenPicker}
-              disabled={UserSignIn ? false : true}
-            >
-              Select File From Google Drive
-            </Button>
+            {UserSignIn ? (
+              <GooglePicker
+                clientId={CLIENT_ID}
+                developerKey={API_KEY}
+                token={
+                  gapi.auth2
+                    .getAuthInstance()
+                    .currentUser.get()
+                    .getAuthResponse().access_token
+                }
+                scope={["https://www.googleapis.com/auth/drive.readonly"]}
+                onChange={(data) => setSelectedData(data.docs ? data.docs : [])}
+                onAuthFailed={(data) => console.log("on auth failed:", data)}
+                multiselect={true}
+                navHidden={true}
+                authImmediate={false}
+                mimeTypes={[
+                  "image/png",
+                  "image/jpeg",
+                  "image/jpg",
+                  "video/mp4",
+                  "application/pdf",
+                  "application/zip",
+                  "application/rar",
+                  "text/xml",
+                  "application/vnd.ms-excel",
+                ]}
+                viewId={"DOCS"}
+              >
+                <Button variant="contained" disabled={false}>
+                  Select File From Google Drive
+                </Button>
+              </GooglePicker>
+            ) : (
+              <Button variant="contained" disabled={UserSignIn ? false : true}>
+                Select File From Google Drive
+              </Button>
+            )}
           </div>
           <div className="LowerPart">
             <Typography>Selected File...</Typography>
             <Box className="ItemsBox">
               {SelectedData.map((item) => {
-                return <Typography>{item.name}</Typography>;
+                return <Typography key={item.name}>{item.name}</Typography>;
               })}
             </Box>
           </div>
